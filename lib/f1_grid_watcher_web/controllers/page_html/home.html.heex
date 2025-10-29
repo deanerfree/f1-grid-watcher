@@ -1,0 +1,84 @@
+<div class="min-h-screen">
+  <div class="container flex flex-col gap-6 pt-8 w-full">
+    <h1 class="text-3xl font-bold text-f1Carbon font-display">
+      F1 Grid Watcher
+    </h1>
+  </div>
+  <div class="my-8 w-full h-px bg-gradient-to-r from-f1Carbon via-f1Carbon via-60%to-transparent dark:from-f1Lavender dark:via-neutral-800 dark:to-f1Yellow dark:border-neutral-300" />
+  <div class="container flex flex-col gap-6">
+    <div class="grid overflow-hidden grid-cols-3 gap-4 ">
+      <div class="col-span-full">
+        <div class="w-full">
+          <h2 class="px-0 py-8 text-4xl font-semibold text-f1Carbon font-display">
+            Last 3 Events
+          </h2>
+          <div class="p-4 swiper bg-gradient-to-br from-f1Carbon via-f1Carbon via-100% to-f1Pink/20 dark:from-neutral-800 dark:via-neutral-800 dark:to-f1Yellow rounded-lg border-2 border-f1Yellow dark:border-neutral-300">
+            <div class="swiper-wrapper !w-[90%]">
+              <%= for race <- Enum.reverse(@results_last_three) do %>
+                <%!-- <% IO.inspect(race, label: "Race data") %> --%>
+                <div class="!flex !flex-col px-16 py-10 gap-8 swiper-slide text-f1Lavender dark:text-f1Carbon">
+                  <h3 class="text-3xl font-semibold font-display text-f1Lavender">
+                    {race[:official_name]}
+                  </h3>
+                  <div class="!flex !flex-col gap-4">
+                    <%= for {session_key, session} <- Enum.reverse(race[:results]) do %>
+                      <%!-- <% IO.inspect(session_key, label: "Session data") %>
+                      <% IO.inspect(session, label: "Session data") %> --%>
+                      <%= if session["session_type"] == "Race" && session["session_name"] == "Race" do %>
+                      <h3 class="text-2xl font-semibold font-display text-f1Yellow">
+                        {session["session_name"]} - {session["session_type"]}
+                      </h3>
+                      <div class="flex flex-row gap-4">
+                      <div class="space-y-4 w-1/2">
+                        <%= for {driver_result, index} <- Enum.with_index(Enum.slice(session["results"], 0..2)) do %>
+                          <.driver_race_card
+                            index={index}
+                            session_name={session["session_name"]}
+                            session_type={session["session_type"]}
+                            driver_result={driver_result}
+                            drivers_by_number={@drivers_by_number}
+                          />
+                        <% end %>
+                      </div>
+                      <div class="space-y-2 w-1/2">
+                        <%= for {driver_result, index} <- Enum.with_index(Enum.slice(session["results"], 3..20)) do %>
+                          <.results_grid
+                            index={index}
+                            session_name={session["session_name"]}
+                            session_type={session["session_type"]}
+                            driver_result={driver_result}
+                            drivers_by_number={@drivers_by_number}
+                          />
+                        <% end %>
+                      </div>
+                      </div>
+                      <% end %>
+                    <% end %>
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm text-f1Yellow">
+                      {race[:meeting_name]} - {race[:circuit_name]}
+                    </span>
+                    <span class="text-sm text-f1Yellow">
+                      {race[:date_start]} - {race[:date_end]}
+                    </span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            
+<!-- Navigation buttons -->
+            <div class="swiper-button-next !text-f1Lavender" />
+            <div class="swiper-button-prev !text-f1Lavender" />
+            
+<!-- Pagination -->
+            <div class="swiper-pagination !text-f1Lavender" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container grid grid-cols-3 gap-4 p-4 rounded-lg border border-neutral-800 dark:border-neutral-300">
+      <div>Locations</div>
+    </div>
+  </div>
+</div>
