@@ -35,3 +35,8 @@ f1_grid_watcher-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# macOS system files
+.DS_Store
+
+# Generated Gettext files
+/priv/gettext/**/*.pot
