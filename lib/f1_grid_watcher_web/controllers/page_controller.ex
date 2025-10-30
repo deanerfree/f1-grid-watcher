@@ -7,7 +7,7 @@ defmodule F1GridWatcherWeb.PageController do
     alias F1GridWatcher.F1Cache
     # The home page is often custom made,
     # so skip the default app layout.
-    years = [2023, 2024, 2025]
+    years = [2023, 2024, 2025, 2026]
 
     driver_task =
       Task.async(fn ->
@@ -28,9 +28,10 @@ defmodule F1GridWatcherWeb.PageController do
     meetings_task =
       Task.async(fn ->
         F1Cache.fetch(:meetings, fn ->
-        case Client.list_item("/meetings", year: List.last(years)) do
+        case Client.list_item("/meetings", year: Enum.at(years, 2)) do
           {:ok, meetings} ->
-            Enum.take(meetings, -3)
+            # Enum.take(meetings, -3)
+            meetings
 
           {:error, reason} ->
             IO.puts("Error fetching meetings: #{inspect(reason)}")
@@ -41,10 +42,10 @@ defmodule F1GridWatcherWeb.PageController do
 
     # Wait for both to complete
     unique_driver_list = Task.await(driver_task)
-    last_three_meetings = Task.await(meetings_task)
+    meetings_list = Task.await(meetings_task)
 
     sessions_list =
-      last_three_meetings
+      Enum.take(meetings_list, -3)
       |> Enum.map(fn meeting ->
         Task.async(fn ->
           case Client.list_item("/sessions", %{
@@ -87,7 +88,7 @@ defmodule F1GridWatcherWeb.PageController do
     # Concurrently build session results maps for each of the last three meetings
 
     results_last_three =
-      last_three_meetings
+      Enum.take(meetings_list, -3)
       |> Enum.map(fn meeting ->
         # Start async task for each meeting
         Task.async(fn ->
