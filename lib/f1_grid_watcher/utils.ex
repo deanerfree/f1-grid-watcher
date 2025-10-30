@@ -6,6 +6,26 @@ defmodule F1GridWatcher.Utils do
   @moduledoc """
   Utility functions for F1GridWatcher.
   """
+
+@doc"""
+  Convert lap duration to minutes:seconds.milliseconds format from seconds.
+  ## Examples
+    iex> F1GridWatcher.Utils.lap_duration_to_minutes(90.22)
+    "1:30.220"
+"""
+@spec lap_duration_to_minutes(float()) :: String.t()
+def lap_duration_to_minutes(duration_seconds) do
+  # Convert seconds to milliseconds for easier calculation
+  total_ms = round(duration_seconds * 1000)
+
+  hours = div(total_ms, 3_600_000)
+  minutes = div(rem(total_ms, 3_600_000), 60_000)
+  seconds = div(rem(total_ms, 60_000), 1000)
+  milliseconds = rem(total_ms, 1000)
+
+  "#{hours}:#{String.pad_leading(Integer.to_string(minutes), 2, "0")}:#{String.pad_leading(Integer.to_string(seconds), 2, "0")}.#{String.pad_leading(Integer.to_string(milliseconds), 3, "0")}"
+end
+
   @doc """
   Simplify iso8601 datetime string to date string.
   ## Examples
