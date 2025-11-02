@@ -428,17 +428,20 @@ defmodule F1GridWatcherWeb.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
-      <div>
-        <h1 class="text-lg font-semibold leading-8 text-zinc-800">
+    <header class={@class}>
+      <div class="container flex-1">
+        <h1 class="text-4xl font-bold text-transparent uppercase bg-clip-text bg-gradient-to-r to-f1Carbon from-f1Pink leading-0 font-display">
           {render_slot(@inner_block)}
         </h1>
         <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
           {render_slot(@subtitle)}
         </p>
       </div>
+      <%= if @actions != [] do %>
       <div class="flex-none">{render_slot(@actions)}</div>
+      <% end %>
     </header>
+    <%!-- <div class="absolute bottom-0 left-0 h-8 bg-gradient-to-b from-transparent backdrop-blur-sm to-white/50" /> --%>
     """
   end
 

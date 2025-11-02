@@ -1,15 +1,21 @@
-<div class="min-h-screen">
-  <div class="container flex flex-col gap-6 pt-8 w-full">
+<div class="min-h-screen bg-f1Carbon">
+  <%!-- <div class="container flex flex-col gap-6 pt-8 w-full">
     <h1 class="text-3xl font-bold text-f1Carbon font-display">
       F1 Grid Watcher
     </h1>
-  </div>
-  <div class="my-8 w-full h-px bg-gradient-to-r from-f1Carbon via-f1Carbon via-60%to-transparent dark:from-f1Lavender dark:via-neutral-800 dark:to-f1Yellow dark:border-neutral-300" />
+  </div> --%>
+<.header class="flex sticky top-0 flex-col py-8 w-full bg-gradient-to-b from-f1Pink/80 via-65% to-f1Carbon border-1 border-b-f1Carbon">
+  F1 Grid Watcher
+  <div class="w-full h-px bg-gradient-to-r from-white via-20% to-transparent dark:from-f1Lavender dark:via-neutral-800 dark:to-f1Yellow dark:border-neutral-300" />
+</.header>
+
+  
+  
   <div class="container flex flex-col gap-6">
     <div class="grid grid-cols-3 gap-4 ">
       <div class="col-span-full">
         <div class="w-full">
-          <h2 class="px-0 py-8 text-4xl font-semibold text-f1Carbon font-display">
+          <h2 class="px-0 py-8 text-3xl font-extrabold text-f1Lavender font-display">
             Last 3 Events
           </h2>
           <div class="p-4 swiper bg-gradient-to-br from-f1Carbon via-f1Carbon via-100% to-f1Pink/20 dark:from-neutral-800 dark:via-neutral-800 dark:to-f1Yellow rounded-lg border-2 border-f1Yellow dark:border-neutral-300">
