@@ -4,23 +4,34 @@
       F1 Grid Watcher
     </h1>
   </div> --%>
-<.header class="flex sticky top-0 flex-col py-8 w-full bg-gradient-to-b from-f1Pink/80 via-65% to-f1Carbon border-1 border-b-f1Carbon">
-  F1 Grid Watcher
-  <div class="w-full h-px bg-gradient-to-r from-white via-20% to-transparent dark:from-f1Lavender dark:via-neutral-800 dark:to-f1Yellow dark:border-neutral-300" />
-</.header>
+  <.header class="flex sticky top-0 flex-col py-8 w-full bg-gradient-to-b from-f1Pink/80 via-65% to-f1Carbon border-1 border-b-f1Carbon">
+    F1 Grid Watcher
+    <div class="w-full h-px bg-gradient-to-r from-white via-20% to-transparent dark:from-f1Lavender dark:to-f1Purple2" />
+  </.header>
 
-  
-  
   <div class="container flex flex-col gap-6">
     <div class="grid grid-cols-3 gap-4 ">
       <div class="col-span-full">
         <div class="w-full">
-          <h2 class="px-0 py-8 text-3xl font-extrabold text-f1Lavender font-display">
-            Last 3 Events
-          </h2>
-          <div class="p-4 swiper bg-gradient-to-br from-f1Carbon via-f1Carbon via-100% to-f1Pink/20 dark:from-neutral-800 dark:via-neutral-800 dark:to-f1Yellow rounded-lg border-2 border-f1Yellow dark:border-neutral-300">
-            <div class="swiper-wrapper !w-[90%]">
-              <%= for race <- Enum.reverse(@results_last_three) do %>
+          
+<!-- Optional: Show data status warning -->
+          <% inspect(@status, label: "Data status :>>>", pretty: true) %>
+          <%= if @status.status == :error do %>
+            <div class="p-4 mb-4 text-yellow-700 bg-yellow-100 border-l-4 border-yellow-500">
+              <p class="font-bold">⚠️ Some data may be outdated</p>
+              <p class="text-sm">
+                We're having trouble fetching the latest information from the F1 API.
+              </p>
+            </div>
+          <% end %>
+          <%= if @results_last_three != [] and @results_last_three > 0 do %>
+            <.slider
+              :let={data}
+              title="Last 3 Events"
+              drivers_by_number={@drivers_by_number}
+              data_map={@results_last_three}
+            >
+              <%= for race <- Enum.reverse(data.data_map) do %>
                 <%!-- <% IO.inspect(race, label: "Race data") %> --%>
                 <div class="!flex !flex-col px-16 py-10 gap-8 swiper-slide text-f1Lavender dark:text-f1Carbon">
                   <h3 class="text-3xl font-semibold font-display text-f1Lavender">
@@ -31,33 +42,33 @@
                       <%!-- <% IO.inspect(session_key, label: "Session data") %>
                       <% IO.inspect(session, label: "Session data") %> --%>
                       <%= if session["session_type"] == "Race" && session["session_name"] == "Race" do %>
-                      <h3 class="text-2xl font-semibold font-display text-f1Yellow">
-                        {session["session_name"]} - {session["session_type"]}
-                      </h3>
-                      <div class="flex flex-row gap-4">
-                      <div class="space-y-4 w-1/2">
-                        <%= for {driver_result, index} <- Enum.with_index(Enum.slice(session["results"], 0..2)) do %>
-                          <.driver_race_card
-                            index={index}
-                            session_name={session["session_name"]}
-                            session_type={session["session_type"]}
-                            driver_result={driver_result}
-                            drivers_by_number={@drivers_by_number}
-                          />
-                        <% end %>
-                      </div>
-                      <div class="space-y-2 w-1/2">
-                        <%= for {driver_result, index} <- Enum.with_index(Enum.slice(session["results"], 3..20)) do %>
-                          <.results_grid
-                            index={index}
-                            session_name={session["session_name"]}
-                            session_type={session["session_type"]}
-                            driver_result={driver_result}
-                            drivers_by_number={@drivers_by_number}
-                          />
-                        <% end %>
-                      </div>
-                      </div>
+                        <h3 class="text-2xl font-semibold font-display text-f1Yellow">
+                          {session["session_name"]} - {session["session_type"]}
+                        </h3>
+                        <div class="flex flex-row gap-4">
+                          <div class="space-y-4 w-1/2">
+                            <%= for {driver_result, index} <- Enum.with_index(Enum.slice(session["results"], 0..2)) do %>
+                              <.driver_race_card
+                                index={index}
+                                session_name={session["session_name"]}
+                                session_type={session["session_type"]}
+                                driver_result={driver_result}
+                                drivers_by_number={@drivers_by_number}
+                              />
+                            <% end %>
+                          </div>
+                          <div class="space-y-2 w-1/2">
+                            <%= for {driver_result, index} <- Enum.with_index(Enum.slice(session["results"], 3..20)) do %>
+                              <.results_grid
+                                index={index}
+                                session_name={session["session_name"]}
+                                session_type={session["session_type"]}
+                                driver_result={driver_result}
+                                drivers_by_number={@drivers_by_number}
+                              />
+                            <% end %>
+                          </div>
+                        </div>
                       <% end %>
                     <% end %>
                   </div>
@@ -71,15 +82,8 @@
                   </div>
                 </div>
               <% end %>
-            </div>
-            
-<!-- Navigation buttons -->
-            <div class="swiper-button-next !text-f1Lavender" />
-            <div class="swiper-button-prev !text-f1Lavender" />
-            
-<!-- Pagination -->
-            <div class="swiper-pagination !text-f1Lavender" />
-          </div>
+            </.slider>
+          <% end %>
         </div>
       </div>
     </div>

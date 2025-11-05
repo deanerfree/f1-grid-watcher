@@ -430,7 +430,7 @@ defmodule F1GridWatcherWeb.CoreComponents do
     ~H"""
     <header class={@class}>
       <div class="container flex-1">
-        <h1 class="text-4xl font-bold text-transparent uppercase bg-clip-text bg-gradient-to-r to-f1Carbon from-f1Pink leading-0 font-display">
+        <h1 class="text-4xl font-bold text-transparent uppercase bg-clip-text bg-gradient-to-b from-f1Purple2 to-f1Carbon leading-0 font-display">
           {render_slot(@inner_block)}
         </h1>
         <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
@@ -438,7 +438,7 @@ defmodule F1GridWatcherWeb.CoreComponents do
         </p>
       </div>
       <%= if @actions != [] do %>
-      <div class="flex-none">{render_slot(@actions)}</div>
+        <div class="flex-none">{render_slot(@actions)}</div>
       <% end %>
     </header>
     <%!-- <div class="absolute bottom-0 left-0 h-8 bg-gradient-to-b from-transparent backdrop-blur-sm to-white/50" /> --%>
