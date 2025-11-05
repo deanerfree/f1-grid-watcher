@@ -50,6 +50,8 @@ module.exports = {
         // Added custom colors
         f1Lavender: '#FEF8FF', // very light lavender (backgrounds/cards)
         f1Pink: '#EFBBFF', // accent/pills
+        f1Purple: '#B44AFF', // primary action/buttons
+        f1Purple2: '#7E6287',
         f1Carbon: '#252127', // deep neutral (panels/text on light)
         f1Yellow: '#FFE74A' // highlight/warning/accent
       },

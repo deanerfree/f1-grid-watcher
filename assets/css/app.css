@@ -3,3 +3,12 @@
 @import 'tailwindcss/utilities';
 
 /* This file is for your main application CSS */
+.swiper-pagination-bullet {
+  background: #7e6287;
+  opacity: 0.5;
+}
+
+.swiper-pagination-bullet-active {
+  background: #fef8ff;
+  opacity: 1;
+}
