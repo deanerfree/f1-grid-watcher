@@ -13,6 +13,8 @@ defmodule F1GridWatcher.Application do
       {Finch, name: F1GridWatcher.Finch},
       {DNSCluster, query: Application.get_env(:f1_grid_watcher, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: F1GridWatcher.PubSub},
+      # Start your custom GenServer
+      F1GridWatcher.RaceState,
       # Start the Finch HTTP client for sending emails
       # Start a worker by calling: F1GridWatcher.Worker.start_link(arg)
       # {F1GridWatcher.Worker, arg},
