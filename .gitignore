@@ -40,3 +40,4 @@ npm-debug.log
 
 # Generated Gettext files
 /priv/gettext/**/*.pot
+
