@@ -7,24 +7,24 @@ defmodule F1GridWatcher.Utils do
   Utility functions for F1GridWatcher.
   """
 
-@doc"""
-  Convert lap duration to minutes:seconds.milliseconds format from seconds.
-  ## Examples
-    iex> F1GridWatcher.Utils.lap_duration_to_minutes(90.22)
-    "1:30.220"
-"""
-@spec lap_duration_to_minutes(float()) :: String.t()
-def lap_duration_to_minutes(duration_seconds) do
-  # Convert seconds to milliseconds for easier calculation
-  total_ms = round(duration_seconds * 1000)
+  @doc """
+    Convert lap duration to minutes:seconds.milliseconds format from seconds.
+    ## Examples
+      iex> F1GridWatcher.Utils.lap_duration_to_minutes(90.22)
+      "1:30.220"
+  """
+  @spec lap_duration_to_minutes(float()) :: String.t()
+  def lap_duration_to_minutes(duration_seconds) do
+    # Convert seconds to milliseconds for easier calculation
+    total_ms = round(duration_seconds * 1000)
 
-  hours = div(total_ms, 3_600_000)
-  minutes = div(rem(total_ms, 3_600_000), 60_000)
-  seconds = div(rem(total_ms, 60_000), 1000)
-  milliseconds = rem(total_ms, 1000)
+    hours = div(total_ms, 3_600_000)
+    minutes = div(rem(total_ms, 3_600_000), 60_000)
+    seconds = div(rem(total_ms, 60_000), 1000)
+    milliseconds = rem(total_ms, 1000)
 
-  "#{hours}:#{String.pad_leading(Integer.to_string(minutes), 2, "0")}:#{String.pad_leading(Integer.to_string(seconds), 2, "0")}.#{String.pad_leading(Integer.to_string(milliseconds), 3, "0")}"
-end
+    "#{hours}:#{String.pad_leading(Integer.to_string(minutes), 2, "0")}:#{String.pad_leading(Integer.to_string(seconds), 2, "0")}.#{String.pad_leading(Integer.to_string(milliseconds), 3, "0")}"
+  end
 
   @doc """
   Simplify iso8601 datetime string to date string.
@@ -203,7 +203,7 @@ end
         assigns = assign(assigns, :svg_content, svg_with_attrs)
 
         ~H"""
-        <%= raw(@svg_content) %>
+        {raw(@svg_content)}
         """
 
       {:error, _reason} ->
@@ -212,8 +212,8 @@ end
           <text x="12" y="12" text-anchor="middle">?</text>
         </svg>
         """
+    end
   end
-end
 
   @spec load_svg(String.t()) :: {:ok, String.t()} | {:error, File.posix()}
   def load_svg(name) do
@@ -223,20 +223,21 @@ end
   end
 
   @spec inject_attributes(String.t(), map()) :: String.t()
-def inject_attributes(svg_content, assigns) do
-  attrs = build_svg_attributes(assigns)
+  def inject_attributes(svg_content, assigns) do
+    attrs = build_svg_attributes(assigns)
 
-  # Remove existing width and height attributes from the SVG
-  svg_content = svg_content
-    |> String.replace(~r/width="[^"]*"/, "")
-    |> String.replace(~r/height="[^"]*"/, "")
+    # Remove existing width and height attributes from the SVG
+    svg_content =
+      svg_content
+      |> String.replace(~r/width="[^"]*"/, "")
+      |> String.replace(~r/height="[^"]*"/, "")
 
-  String.replace(
-    svg_content,
-    ~r/<svg([^>]*)>/,
-    "<svg\\1 #{attrs} width=\"100%\" height=\"100%\">"
-  )
-end
+    String.replace(
+      svg_content,
+      ~r/<svg([^>]*)>/,
+      "<svg\\1 #{attrs} width=\"100%\" height=\"100%\">"
+    )
+  end
 
   @spec build_svg_attributes(map()) :: String.t()
   def build_svg_attributes(assigns) do
@@ -244,9 +245,10 @@ end
 
     attrs = if assigns.class != "", do: ["class=\"#{assigns.class}\"" | attrs], else: attrs
 
-    attrs = Enum.reduce(assigns[:rest] || %{}, attrs, fn {key, value}, acc ->
-      ["#{key}=\"#{value}\"" | acc]
-    end)
+    attrs =
+      Enum.reduce(assigns[:rest] || %{}, attrs, fn {key, value}, acc ->
+        ["#{key}=\"#{value}\"" | acc]
+      end)
 
     Enum.join(attrs, " ")
   end
