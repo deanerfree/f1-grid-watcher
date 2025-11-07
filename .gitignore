@@ -41,3 +41,5 @@ npm-debug.log
 # Generated Gettext files
 /priv/gettext/**/*.pot
 
+# environment variables file
+.env
