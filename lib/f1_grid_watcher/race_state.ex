@@ -8,7 +8,9 @@ defmodule F1GridWatcher.RaceState do
   alias F1GridWatcher.OpenF1.Client
   alias F1GridWatcher.Utils
   alias F1GridWatcher.F1Cache
-
+  alias Supabase.PostgREST, as: Q
+  alias F1GridWatcher.Supabase.SupabaseFetcher
+  # retry constants
   @max_retries 3
   # 2 seconds
   @retry_delay 2_000
@@ -343,5 +345,21 @@ defmodule F1GridWatcher.RaceState do
       end)
     end)
     |> Enum.map(&Task.await(&1, 30_000))
+  end
+
+  @spec get_season_schedule(integer(), integer()) :: {:ok, list(map())} | {:error, term()}
+  def get_season_schedule(project_id, year) do
+    {:ok, client} = F1GridWatcher.Supabase.Client.get_client()
+
+    query =
+      Q.from(client, "content")
+      |> Q.eq("project_id", project_id)
+      |> Q.eq("content_type_id", 1)
+      |> Q.eq("content->0->>year", to_string(year))
+      |> Q.select("*", returning: true)
+      # |> Q.execute()
+      # IO.inspect(query, label: "Executing Supabase query for schedules: ")
+
+    SupabaseFetcher.fetch(query, "schedules")
   end
 end

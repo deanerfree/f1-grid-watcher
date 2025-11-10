@@ -1,3 +1,5 @@
+import Config
+
 # This file is responsible for configuring your application
 # and its dependencies with the aid of the Config module.
 #
@@ -5,7 +7,6 @@
 # is restricted to this project.
 
 # General application configuration
-import Config
 
 config :f1_grid_watcher,
   generators: [timestamp_type: :utc_datetime]

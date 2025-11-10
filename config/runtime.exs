@@ -16,9 +16,19 @@ import Config
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
-if System.get_env("PHX_SERVER") do
-  config :f1_grid_watcher, F1GridWatcherWeb.Endpoint, server: true
+if Config.config_env() == :dev do
+  DotenvParser.load_file(".env")
 end
+
+# if System.fetch_env!("PHX_SERVER") do
+#   config :f1_grid_watcher, F1GridWatcherWeb.Endpoint, server: true
+# end
+
+config :f1_grid_watcher, F1GridWatcher.Supabase.Client,
+    base_url: System.fetch_env!("SUPABASE_URL") || raise("SUPABASE_URL not set"),
+    api_key: System.fetch_env!("SUPABASE_API_KEY") || raise("SUPABASE_API_KEY not set")
+
+IO.puts("Runtime config loaded for #{config_env()} environment")
 
 if config_env() == :prod do
   # The secret key base is used to sign/encrypt cookies and other secrets.

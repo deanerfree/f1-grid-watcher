@@ -8,12 +8,12 @@ defmodule F1GridWatcher.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      F1GridWatcherWeb.Telemetry,
       {Cachex, name: :f1_cache},
       {Finch, name: F1GridWatcher.Finch},
       {DNSCluster, query: Application.get_env(:f1_grid_watcher, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: F1GridWatcher.PubSub},
-      # Start your custom GenServer
+      F1GridWatcherWeb.Telemetry,
+      F1GridWatcher.Supabase.Client,
       F1GridWatcher.RaceState,
       # Start the Finch HTTP client for sending emails
       # Start a worker by calling: F1GridWatcher.Worker.start_link(arg)
