@@ -12,8 +12,10 @@ defmodule F1GridWatcher.RaceState do
   alias F1GridWatcher.Supabase.SupabaseFetcher
   # retry constants
   @max_retries 3
-  # 2 seconds
   @retry_delay 2_000
+  @loading_timeout 60_000  # 60 seconds for the handler to wait for loading
+  @current_date Date.utc_today().year
+  @current_year Date.utc_today().year
 
   # Client API
 
@@ -108,10 +110,25 @@ defmodule F1GridWatcher.RaceState do
   end
 
   @impl true
-  def handle_cast(:refresh_data, state) do
-    Logger.info("Refreshing race data...")
-    new_state = fetch_all_data(state)
-    {:noreply, new_state}
+  def handle_info(:loading_timeout, state) do
+    case state.data_status do
+      :loading ->
+        Logger.warning("Data loading timed out after #{@loading_timeout}ms, marking as stale")
+        new_state = %{state |
+          data_status: :stale,
+          errors: state.errors ++ [%{
+            resource: "loading_timeout",
+            type: :timeout,
+            reason: "Data loading exceeded timeout",
+            timestamp: DateTime.utc_now()
+          }]
+        }
+        {:noreply, new_state}
+
+      _ ->
+        # Data already loaded, ignore timeout
+        {:noreply, state}
+    end
   end
 
   # Private Functions
