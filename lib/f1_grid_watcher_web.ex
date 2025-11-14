@@ -91,6 +91,7 @@ defmodule F1GridWatcherWeb do
       import F1GridWatcherWeb.CoreComponents
       import F1GridWatcherWeb.ResultsComponents
       import F1GridWatcherWeb.SliderComponent
+      import F1GridWatcherWeb.StatusComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

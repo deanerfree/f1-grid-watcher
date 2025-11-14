@@ -17,7 +17,10 @@ defmodule F1GridWatcherWeb.Router do
   scope "/", F1GridWatcherWeb do
     pipe_through :browser
 
+    # get "/", PageController, :home
     live "/", HomeLive, :index
+    live "/:year/:meeting", Race.RaceLive, :show  # Dynamic route
+
   end
 
   # Other scopes may use custom stacks.
