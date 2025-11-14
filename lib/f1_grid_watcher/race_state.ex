@@ -31,12 +31,24 @@ defmodule F1GridWatcher.RaceState do
     GenServer.cast(__MODULE__, {:set_selected_year, year})
   end
 
-  def get_drivers do
-    GenServer.call(__MODULE__, :get_drivers)
+  def get_all_drivers do
+    GenServer.call(__MODULE__, :get_all_drivers)
+  end
+
+  def get_drivers_by_meeting(meeting) do
+    GenServer.call(__MODULE__, {:get_drivers_by_meeting, meeting})
+  end
+
+  def get_laps(meeting_key, session_key) do
+    GenServer.call(__MODULE__, {:get_laps, meeting_key, session_key}, 30_000)
   end
 
   def get_recent_race_results do
     GenServer.call(__MODULE__, :get_recent_race_results, 30_000)
+  end
+
+  def get_sessions(meeting_key) do
+    GenServer.call(__MODULE__, {:get_sessions, meeting_key}, 30_000)
   end
 
   def get_data_status do
@@ -69,24 +81,49 @@ defmodule F1GridWatcher.RaceState do
 
   @impl true
   def handle_continue(:load_initial_data, state) do
-    Logger.info("Loading initial race data...")
-    new_state = fetch_all_data(state)
+    Logger.info("Starting background data load...")
+    Task.start(fn ->
+      new_state = fetch_all_data(state)
+
+      Process.send_after(self(), :loading_timeout, @loading_timeout)
+
+      GenServer.cast(__MODULE__, {:data_loaded, new_state})
+    end)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_cast({:set_selected_year, year}, state) do
+    Logger.info("Year changed to #{year}")
+    new_state = %{state | selected_year: year, data_status: :loading}
+
+    Process.send_after(self(), :loading_timeout, @loading_timeout)
+
+    Task.start(fn ->
+      loaded_state = fetch_all_data(new_state)
+      GenServer.cast(__MODULE__, {:data_loaded, loaded_state})
+    end)
     {:noreply, new_state}
   end
 
   @impl true
-  def handle_call(:get_selected_year, _from, state) do
-    {:reply, state.selected_year, state}
+  def handle_cast(:refresh_data, state) do
+    Logger.info("Refreshing race data...")
+    new_state = %{state | data_status: :loading}
+
+    Process.send_after(self(), :loading_timeout, @loading_timeout)
+
+    Task.start(fn ->
+      loaded_state = fetch_all_data(new_state)
+      GenServer.cast(__MODULE__, {:data_loaded, loaded_state})
+    end)
+    {:noreply, new_state}
   end
 
   @impl true
-  def handle_call(:get_drivers, _from, state) do
-    {:reply, state.drivers, state}
-  end
-
-  @impl true
-  def handle_call(:get_recent_race_results, _from, state) do
-    {:reply, state.recent_results, state}
+  def handle_cast({:data_loaded, loaded_state}, _current_state) do
+    Logger.info("Background data load completed with status: #{loaded_state.data_status}")
+    {:noreply, loaded_state}
   end
 
   @impl true
@@ -102,11 +139,51 @@ defmodule F1GridWatcher.RaceState do
   end
 
   @impl true
-  def handle_cast({:set_selected_year, year}, state) do
-    Logger.info("Year changed to #{year}")
-    new_state = %{state | selected_year: year}
-    new_state = fetch_all_data(new_state)
-    {:noreply, new_state}
+  def handle_call(:get_selected_year, _from, state) do
+    {:reply, state.selected_year, state}
+  end
+
+  @impl true
+  def handle_call(:get_all_drivers, _from, state) do
+    case state.data_status do
+      :loading -> {:reply, %{}, state}  # Return empty while loading
+      _ -> {:reply, state.drivers, state}
+    end
+  end
+
+  @impl true
+  def handle_call({:get_drivers_by_meeting, meeting_key}, _from, state) do
+    drivers = case fetch_drivers(meeting_key) do
+      {:ok, drivers} -> drivers
+      {:error, _} -> %{}
+    end
+
+    {:reply, drivers, state}
+  end
+
+  @impl true
+  def handle_call({:get_sessions, meeting_key}, _from, state) do
+    sessions = case fetch_sessions(meeting_key) do
+      {:ok, sessions} -> sessions
+      {:error, _} -> []
+    end
+
+    {:reply, sessions, state}
+  end
+
+  @impl true
+  def handle_call(:get_recent_race_results, _from, state) do
+    {:reply, state.recent_results, state}
+  end
+
+  @impl true
+  def handle_call({:get_laps, meeting_key, session_key}, _from, state) do
+    laps = case fetch_laps(meeting_key, session_key) do
+      {:ok, laps} -> laps
+      {:error, _} -> []
+    end
+
+    {:reply, laps, state}
   end
 
   @impl true
@@ -184,9 +261,9 @@ defmodule F1GridWatcher.RaceState do
     }
   end
 
-  defp fetch_drivers do
+  defp fetch_drivers(meeting \\ nil) do
     F1Cache.fetch(:drivers, fn ->
-      case Client.list_item("/drivers", %{}) do
+      case Client.list_item("/drivers", %{meeting: meeting}) do
         {:ok, drivers} ->
           {:ok,
            drivers
@@ -203,13 +280,33 @@ defmodule F1GridWatcher.RaceState do
     F1Cache.fetch(:meetings, fn ->
       case Client.list_item("/meetings", year: year) do
         {:ok, meetings} ->
-          IO.inspect(meetings, label: "Fetched meetings: ")
+          # IO.inspect(meetings, label: "Fetched meetings: ")
           {:ok, meetings}
 
         {:error, reason} ->
           {:error, reason}
       end
     end)
+  end
+
+  defp fetch_sessions(meeting_key) do
+    case Client.list_item("/sessions", %{meeting_key: meeting_key}) do
+      {:ok, sessions} ->
+        {:ok, sessions}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp fetch_laps(meeting_key, session_key) do
+    case Client.list_item("/laps", %{meeting_key: meeting_key, session_key: session_key}) do
+      {:ok, laps} ->
+        {:ok, laps}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   defp fetch_with_retry(fetch_fn, fallback_data, resource_name, retry_count \\ 0) do
