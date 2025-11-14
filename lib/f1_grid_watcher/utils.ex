@@ -120,7 +120,7 @@ defmodule F1GridWatcher.Utils do
       Task.async(fn ->
         case Client.list_item("/session_result", %{
                "meeting_key" => meeting_key,
-               "session_key" => session_1["session_key"],
+               "session_key" => session_1[:session_key],
                "position<" => position_limit
              }) do
           {:ok, results} ->
@@ -136,7 +136,7 @@ defmodule F1GridWatcher.Utils do
       Task.async(fn ->
         case Client.list_item("/session_result", %{
                "meeting_key" => meeting_key,
-               "session_key" => session_2["session_key"],
+               "session_key" => session_2[:session_key],
                "position<" => position_limit
              }) do
           {:ok, results} ->
@@ -152,7 +152,7 @@ defmodule F1GridWatcher.Utils do
       Task.async(fn ->
         case Client.list_item("/session_result", %{
                "meeting_key" => meeting_key,
-               "session_key" => session_3["session_key"],
+               "session_key" => session_3[:session_key],
                "position<" => position_limit
              }) do
           {:ok, results} ->
@@ -170,20 +170,20 @@ defmodule F1GridWatcher.Utils do
     session_3_result = Task.await(task_3)
 
     %{
-      "session_1" => %{
-        "session_type" => session_1["session_type"],
-        "session_name" => session_1["session_name"],
-        "results" => session_1_result
+      session_1: %{
+        session_type: session_1[:session_type],
+        session_name: session_1[:session_name],
+        results: session_1_result
       },
-      "session_2" => %{
-        "session_type" => session_2["session_type"],
-        "session_name" => session_2["session_name"],
-        "results" => session_2_result
+      session_2: %{
+        session_type: session_2[:session_type],
+        session_name:  session_2[:session_name],
+        results: session_2_result
       },
-      "session_3" => %{
-        "session_type" => session_3["session_type"],
-        "session_name" => session_3["session_name"],
-        "results" => session_3_result
+      session_3: %{
+        session_type: session_3[:session_type],
+        session_name: session_3[:session_name],
+        results: session_3_result
       }
     }
   end

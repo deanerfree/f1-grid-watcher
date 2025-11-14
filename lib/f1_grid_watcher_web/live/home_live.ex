@@ -169,7 +169,7 @@ defmodule F1GridWatcherWeb.HomeLive do
     results_last_three = RaceState.get_recent_race_results()
     status = RaceState.get_data_status()
 
-    IO.inspect(status, label: "Data status in HomeLive.handle_info :>>>", pretty: true)
+    IO.inspect(drivers_by_number, label: "Data status in HomeLive.handle_info :>>>", pretty: true)
 
     # Handle flash messages
     socket =
@@ -247,30 +247,29 @@ defmodule F1GridWatcherWeb.HomeLive do
                       </h3>
                       <div class="!flex !flex-col gap-4">
                         <%= for {session_key, session} <- Enum.reverse(race[:results]) do %>
-                          <%!-- <% IO.inspect(session_key, label: "Session data") %>
-                            <% IO.inspect(session, label: "Session data") %> --%>
-                          <%= if session["session_type"] == "Race" && session["session_name"] == "Race" do %>
+                          <% IO.inspect(session_key, label: "Session data") %>
+                          <%= if session[:session_type] == "Race" && session[:session_name] == "Race" do %>
                             <h3 class="text-2xl font-semibold font-display text-f1Yellow">
-                              {session["session_name"]} - {session["session_type"]}
+                              {session[:session_name]} - {session[:session_type]}
                             </h3>
                             <div class="flex flex-row gap-4">
                               <div class="space-y-4 w-1/2">
-                                <%= for {driver_result, index} <- Enum.with_index(Enum.slice(session["results"], 0..2)) do %>
+                                <%= for {driver_result, index} <- Enum.with_index(Enum.slice(session[:results], 0..2)) do %>
                                   <.driver_race_card
                                     index={index}
-                                    session_name={session["session_name"]}
-                                    session_type={session["session_type"]}
+                                    session_name={session[:session_name]}
+                                    session_type={session[:session_type]}
                                     driver_result={driver_result}
                                     drivers_by_number={@drivers_by_number}
                                   />
                                 <% end %>
                               </div>
                               <div class="space-y-2 w-1/2">
-                                <%= for {driver_result, index} <- Enum.with_index(Enum.slice(session["results"], 3..20)) do %>
+                                <%= for {driver_result, index} <- Enum.with_index(Enum.slice(session[:results], 3..20)) do %>
                                   <.results_grid
                                     index={index}
-                                    session_name={session["session_name"]}
-                                    session_type={session["session_type"]}
+                                    session_name={session[:session_name]}
+                                    session_type={session[:session_type]}
                                     driver_result={driver_result}
                                     drivers_by_number={@drivers_by_number}
                                   />

@@ -189,8 +189,7 @@ defmodule F1GridWatcher.RaceState do
   end
 
   @impl true
-  @spec handle_call(:get_all_drivers, GenServer.from(), state()) ::
-          {:reply, %{integer() => Types.driver()}, state()}
+  @spec handle_call(:get_all_drivers, GenServer.from(), state()) :: {:reply, %{integer() => Types.driver()}, state()}
   def handle_call(:get_all_drivers, _from, state) do
     case state.data_status do
       :loading -> {:reply, %{}, state}  # Return empty while loading
@@ -325,7 +324,7 @@ defmodule F1GridWatcher.RaceState do
         {:ok, drivers} ->
           {:ok,
            drivers
-           |> Enum.map(&{&1["driver_number"], &1})
+           |> Enum.map(&{&1[:driver_number], &1})
            |> Map.new()}
 
         {:error, reason} ->
@@ -483,17 +482,17 @@ defmodule F1GridWatcher.RaceState do
       |> Enum.map(fn meeting ->
         Task.async(fn ->
           case Client.list_item("/sessions", %{
-                 "meeting_key" => meeting["meeting_key"]
+                 meeting_key: meeting[:meeting_key]
                }) do
             {:ok, sessions} ->
-              {meeting["meeting_key"], sessions}
+              {meeting[:meeting_key], sessions}
 
             {:error, reason} ->
               Logger.error(
                 "Error fetching sessions for meeting #{meeting["meeting_key"]}: #{inspect(reason)}"
               )
 
-              {meeting["meeting_key"], nil}
+              {meeting[:meeting_key], nil}
           end
         end)
       end)
@@ -503,22 +502,22 @@ defmodule F1GridWatcher.RaceState do
     Enum.take(meetings_list, -3)
     |> Enum.map(fn meeting ->
       Task.async(fn ->
-        F1Cache.fetch("session_results_#{meeting["meeting_key"]}", fn ->
+        F1Cache.fetch("session_results_#{meeting[:meeting_key]}", fn ->
           final_results =
             Utils.build_session_results_map(
-              meeting["meeting_key"],
-              sessions_list[meeting["meeting_key"]],
+              meeting[:meeting_key],
+              sessions_list[meeting[:meeting_key]],
               10
             )
 
           %{
-            meeting_name: meeting["meeting_name"],
-            official_name: meeting["meeting_official_name"],
-            circuit_name: meeting["circuit_short_name"],
-            country: meeting["country_name"],
-            date_start: Utils.format_datetime(meeting["date_start"]),
-            date_end: Utils.add_days(meeting["date_start"], 3),
-            year: meeting["year"],
+            meeting_name: meeting[:meeting_name],
+            official_name: meeting[:meeting_official_name],
+            circuit_name: meeting[:circuit_short_name],
+            country: meeting[:country_name],
+            date_start: Utils.format_datetime(meeting[:date_start]),
+            date_end: Utils.add_days(meeting[:date_start], 3),
+            year: meeting[:year],
             results: final_results
           }
         end)

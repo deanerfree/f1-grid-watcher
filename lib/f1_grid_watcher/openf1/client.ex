@@ -14,6 +14,7 @@ defmodule F1GridWatcher.OpenF1.Client do
   defp client do
     Req.new(
       base_url: @base_url,
+      decode_json: [keys: :atoms],
       # Retry on network errors and 5xx responses
       retry: :transient,
       max_retries: 3,
