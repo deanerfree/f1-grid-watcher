@@ -89,12 +89,12 @@ defmodule F1GridWatcher.RaceState do
   Error information stored in state.
   """
   @type error :: %{
-          resource: String.t(),
-          type: :client_error | :server_error | :network_error | :timeout | :exception | :unknown_error,
-          timestamp: DateTime.t(),
           optional(:status) => integer(),
           optional(:reason) => term(),
-          optional(:retry_count) => integer()
+          optional(:retry_count) => integer(),
+          resource: String.t(),
+          type: :client_error | :server_error | :network_error | :timeout | :exception | :unknown_error,
+          timestamp: DateTime.t()
         }
 
   # Server Callbacks
